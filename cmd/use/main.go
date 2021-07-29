@@ -27,7 +27,7 @@ func main() {
 		usage()
 	}
 
-	if err = useShell(os.Args[1], path); err != nil {
+	if err = execShell(name, path); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to use %s: %v\n", name, err)
 		os.Exit(1)
 	}
@@ -39,8 +39,8 @@ func usage() {
 	os.Exit(1)
 }
 
-// useShell executes a new shell using the supplied path added to the PATH environment.
-func useShell(arg, path string) error {
+// execShell executes a new shell using the supplied path added to the PATH environment.
+func execShell(name, path string) error {
 	env := use.Env(syscall.Environ())
 	envPath := env.Get("PATH")
 	env.Set("PATH", path+":"+envPath)
