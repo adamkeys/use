@@ -20,9 +20,7 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	// This test assumes node is installed via homebrew.
-	// TODO: Do not depend on the system environment.
-	path, err := use.Version("node", "10")
+	path, err := use.Version("/usr/local/opt/node", "10")
 	if err != nil {
 		t.Fatal(err)
 	}

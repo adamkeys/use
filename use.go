@@ -24,12 +24,7 @@ func Prefix(packageName string) (string, error) {
 
 // Version returns the path of the package for the supplied version. If the package for the specified version cannot
 // be found an error will be returned.
-func Version(packageName, version string) (string, error) {
-	prefix, err := Prefix(packageName)
-	if err != nil {
-		return "", err
-	}
-
+func Version(prefix, version string) (string, error) {
 	builder := strings.Builder{}
 	builder.WriteString(prefix)
 	builder.WriteByte('@')
