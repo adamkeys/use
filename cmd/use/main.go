@@ -21,15 +21,25 @@ func main() {
 		usage()
 	}
 
-	path, err := use.Version(parts[0], parts[1])
+	// Find the location the requested package.
+	prefix, err := use.Prefix(parts[0])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to find package: %v", err)
 		usage()
 	}
+	path, err := use.Version(prefix, parts[1])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to find version: %v", err)
+		usage()
+	}
 
-	if err = execShell(name, path); err != nil {
+	// Setup the environment and launch a shell parpared to prioritize the package.
+	env := use.Env(syscall.Environ())
+	env.Set("PATH", joinPath(path, env.Get("PATH")))
+	env.Set("USES", joinPath(name, env.Get("USES")))
+	if err = execShell(env); err != nil {
 		fmt.Fprintf(os.Stderr, "failed to use %s: %v\n", name, err)
-		os.Exit(1)
+		usage()
 	}
 }
 
@@ -40,15 +50,22 @@ func usage() {
 }
 
 // execShell executes a new shell using the supplied path added to the PATH environment.
-func execShell(name, path string) error {
-	env := use.Env(syscall.Environ())
-	envPath := env.Get("PATH")
-	env.Set("PATH", path+":"+envPath)
-
+func execShell(env *use.EnvironmentSet) error {
 	shell := env.Get("SHELL")
 	if shell == "" {
 		shell = "/bin/sh"
 	}
 
 	return syscall.Exec(shell, []string{shell}, env.Environ())
+}
+
+// joinPath concatenates a and b separated by a :.
+func joinPath(a, b string) string {
+	if a == "" {
+		return b
+	}
+	if b == "" {
+		return a
+	}
+	return a + ":" + b
 }
