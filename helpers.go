@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 )
@@ -23,17 +22,13 @@ func packagePrefix(packageName string) (string, error) {
 
 // packagePath returns the path of the package for the supplied version. If the package for the specified version cannot
 // be found an error will be returned.
-func packagePath(prefix, version string) (string, error) {
+func packagePath(prefix, version string) string {
 	builder := strings.Builder{}
 	builder.WriteString(prefix)
 	builder.WriteByte('@')
 	builder.WriteString(version)
 	builder.WriteString("/bin")
-	path := builder.String()
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return "", fmt.Errorf("%s: %w", path, err)
-	}
-	return path, nil
+	return builder.String()
 }
 
 // joinPath concatenates a and b separated by a :.

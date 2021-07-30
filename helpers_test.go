@@ -17,11 +17,8 @@ func TestPrefix(t *testing.T) {
 	}
 }
 
-func TestVersion(t *testing.T) {
-	path, err := packagePath("/usr/local/opt/node", "10")
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestPackagePath(t *testing.T) {
+	path := packagePath("/usr/local/opt/node", "10")
 	const exp = "/usr/local/opt/node@10/bin"
 	if path != exp {
 		t.Errorf("expected path to be: %q; got: %q", exp, path)
