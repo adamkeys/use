@@ -1,5 +1,4 @@
-// Package use provides functions to use a version of a brew package.
-package use
+package main
 
 import (
 	"bytes"
@@ -9,8 +8,8 @@ import (
 	"strings"
 )
 
-// Prefix returns the result of brew --prefix <packageName>
-func Prefix(packageName string) (string, error) {
+// packagePrefix returns the result of brew --prefix <packageName>
+func packagePrefix(packageName string) (string, error) {
 	buf := bytes.Buffer{}
 	cmd := exec.Command("brew", "--prefix", packageName)
 	cmd.Stdout = &buf
@@ -22,9 +21,9 @@ func Prefix(packageName string) (string, error) {
 	return string(path), nil
 }
 
-// Version returns the path of the package for the supplied version. If the package for the specified version cannot
+// packageVersion returns the path of the package for the supplied version. If the package for the specified version cannot
 // be found an error will be returned.
-func Version(prefix, version string) (string, error) {
+func packageVersion(prefix, version string) (string, error) {
 	builder := strings.Builder{}
 	builder.WriteString(prefix)
 	builder.WriteByte('@')
@@ -35,4 +34,15 @@ func Version(prefix, version string) (string, error) {
 		return "", fmt.Errorf("%s: %w", path, err)
 	}
 	return path, nil
+}
+
+// joinPath concatenates a and b separated by a :.
+func joinPath(a, b string) string {
+	if a == "" {
+		return b
+	}
+	if b == "" {
+		return a
+	}
+	return a + ":" + b
 }

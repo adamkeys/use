@@ -1,9 +1,8 @@
-package use_test
+package main
 
 import (
 	"testing"
 
-	"github.com/adamkeys/use"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -11,30 +10,48 @@ func TestEnv(t *testing.T) {
 	env := []string{
 		"PATH=/usr/local/bin:/usr/bin",
 	}
-	set := use.Env(env)
+	set := newEnv(env)
 
 	t.Run("Get", func(t *testing.T) {
-		if path := set.Get("PATH"); path != "/usr/local/bin:/usr/bin" {
-			t.Errorf("expected PATH to be /usr/local/bin:/usr/bin; got: %s", path)
+		cases := []struct {
+			key   string
+			value string
+		}{
+			{"PATH", "/usr/local/bin:/usr/bin"},
+			{"UNKNOWN", ""},
 		}
-		if path := set.Get("UNKNOWN"); path != "" {
-			t.Errorf("expected PATH to be empty; got: %s", path)
+		for _, tc := range cases {
+			t.Run(tc.key, func(t *testing.T) {
+				if v := set.Get(tc.key); v != tc.value {
+					t.Errorf("expected %s to be %v; got: %s", tc.key, tc.value, v)
+				}
+			})
 		}
 	})
 
 	t.Run("Set", func(t *testing.T) {
-		set.Set("PATH", "/usr/bin")
-		if path := set.Get("PATH"); path != "/usr/bin" {
-			t.Errorf("expected PATH to be /usr/bin; got: %s", path)
+		cases := []struct {
+			key   string
+			value string
+		}{
+			{"PATH", "/usr/bin"},
+			{"PATH", "/usr/sbin"},
+			{"USES", "node@12"},
+			{"USES", "node@12"},
 		}
-
-		set.Set("PATH", "/usr/sbin")
-		if path := set.Get("PATH"); path != "/usr/sbin" {
-			t.Errorf("expected PATH to be /usr/sbin; got: %s", path)
+		for _, tc := range cases {
+			t.Run(tc.key, func(t *testing.T) {
+				set.Set(tc.key, tc.value)
+				if v := set.Get(tc.key); v != tc.value {
+					t.Errorf("expected %s to be %s; got: %s", tc.key, tc.value, v)
+				}
+			})
 		}
 	})
 
 	t.Run("Environ", func(t *testing.T) {
+		set := newEnv(env)
+		set.Set("USES", "")
 		if diff := cmp.Diff(set.Environ(), env); diff != "" {
 			t.Error(diff)
 		}

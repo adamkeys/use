@@ -1,4 +1,4 @@
-package use
+package main
 
 import (
 	"fmt"
@@ -11,9 +11,9 @@ type EnvironmentSet struct {
 	keys    map[string]keyInfo
 }
 
-// Env returns a new EnvironmentSet for the supplied environment variables. The input is intended to be used
+// newEnv returns a new EnvironmentSet for the supplied environment variables. The input is intended to be used
 // by the result of the syscall.Environ() function.
-func Env(environ []string) *EnvironmentSet {
+func newEnv(environ []string) *EnvironmentSet {
 	keys := make(map[string]keyInfo, len(environ))
 	for i, env := range environ {
 		kv := strings.Split(env, "=")
@@ -45,19 +45,26 @@ func (e *EnvironmentSet) Set(key, value string) {
 
 	info, ok := e.keys[key]
 	if !ok {
-		e.environ = append(e.environ, env)
 		e.keys[key] = keyInfo{
 			index:  len(e.environ),
 			offset: len(key) + 1,
 		}
+		e.environ = append(e.environ, env)
 		return
 	}
 	e.environ[info.index] = env
 }
 
-// Environ returns the current environment.
+// Environ returns the current environment. Empty variables are removed.
 func (e *EnvironmentSet) Environ() []string {
-	return e.environ
+	env := make([]string, 0, len(e.environ))
+	for _, v := range e.environ {
+		if strings.IndexByte(v, '=') == (len(v) - 1) {
+			continue
+		}
+		env = append(env, v)
+	}
+	return env
 }
 
 // keyInfo holds references to the variable locations.
