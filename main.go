@@ -25,7 +25,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed to find package: %v", err)
 		usage()
 	}
-	path, err := packageVersion(prefix, parts[1])
+	path, err := packagePath(prefix, parts[1])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to find version: %v", err)
 		usage()

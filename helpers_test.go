@@ -18,7 +18,7 @@ func TestPrefix(t *testing.T) {
 }
 
 func TestVersion(t *testing.T) {
-	path, err := packageVersion("/usr/local/opt/node", "10")
+	path, err := packagePath("/usr/local/opt/node", "10")
 	if err != nil {
 		t.Fatal(err)
 	}
